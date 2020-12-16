@@ -1,0 +1,54 @@
+<!doctype html>
+<title>Emscripten + npm example</title>
+<div>Choose your mean</div>
+<button id="rock">rock</button>
+<button id="scissors">scissors</button>
+<button id="paper">paper</button>
+
+<pre id="result"></pre>
+<script type="module">
+import wasmModule from "/build/out.js";
+
+console.time("instance")
+
+globalThis.response = {
+  status: 0,
+  body: "",
+};
+globalThis.request = {
+  params: {
+    pick: 2,
+  }
+};
+
+rock.addEventListener('click', (e) => {
+  globalThis.request.params.pick = 1;
+  callCobol();
+})
+scissors.addEventListener('click', (e) => {
+  globalThis.request.params.pick = 2;
+  callCobol();
+})
+paper.addEventListener('click', (e) => {
+  globalThis.request.params.pick = 3;
+  callCobol();
+})
+
+const callCobol = () => {
+  const instance = wasmModule({
+    onRuntimeInitialized() {
+      // console.timeEnd("instance")
+      // console.time("entry")
+      try {
+        instance._entry();
+      } catch(e) {
+        console.log(e)
+      }
+
+      // console.log("response", globalThis.response)
+      result.innerHTML = globalThis.response.body.replace(/\\n/g, '\n')
+      // console.timeEnd("entry")
+    }
+  });
+}
+</script>
